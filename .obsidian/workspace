@@ -1,0 +1,147 @@
+{
+  "main": {
+    "id": "659ca092bead4736",
+    "type": "split",
+    "children": [
+      {
+        "id": "8a24107b16cf4ff4",
+        "type": "leaf",
+        "dimension": 21.9496855345912,
+        "state": {
+          "type": "outline",
+          "state": {
+            "file": "JavaScript/【05-JS数组】.md"
+          }
+        }
+      },
+      {
+        "id": "f24c8d042d10d608",
+        "type": "leaf",
+        "dimension": 78.0503144654088,
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "JavaScript/【05-JS数组】.md",
+            "mode": "source",
+            "source": false
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "a713f4671625e62f",
+    "type": "split",
+    "children": [
+      {
+        "id": "4507be05c63335c5",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "354d4146bb19ae96",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "b0c304cab902ff10",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "ea241a00127c8596",
+            "type": "leaf",
+            "state": {
+              "type": "starred",
+              "state": {}
+            }
+          },
+          {
+            "id": "f8223daa200a03ef",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "JavaScript/【05-JS数组】.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "38b2293b33c41234",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "JavaScript/【05-JS数组】.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "32adc96685c2b4bf",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "24766fdbd39b6738",
+            "type": "leaf",
+            "state": {
+              "type": "advanced-tables-toolbar",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "dab7a9e882d139a1",
+    "type": "split",
+    "children": [],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "f24c8d042d10d608",
+  "lastOpenFiles": [
+    "JavaScript/【02-JS基本数据类型】.md",
+    "JavaScript/【05-JS数组】.md",
+    "JavaScript/【06-JS函数】.md",
+    "JavaScript/【07-DOM】.md",
+    "JavaScript/【10-正则表达式】.md",
+    "JavaScript/【11-ES6基础入门】.md",
+    "Algorithm/01_基础算法/01-快速排序.md",
+    "Algorithm/01_基础算法/01-快速排序.md.md",
+    "Algorithm/01_基础算法/快速排序.md",
+    "JavaScript/【15-HTTP、存储、Ajax】.md"
+  ]
+}
