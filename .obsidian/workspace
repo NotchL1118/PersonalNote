@@ -6,22 +6,22 @@
       {
         "id": "8a24107b16cf4ff4",
         "type": "leaf",
-        "dimension": 21.9496855345912,
+        "dimension": 13.80952380952381,
         "state": {
           "type": "outline",
           "state": {
-            "file": "JavaScript/【05-JS数组】.md"
+            "file": "JavaScript/【13-ES6之Promise与Class类】.md"
           }
         }
       },
       {
         "id": "f24c8d042d10d608",
         "type": "leaf",
-        "dimension": 78.0503144654088,
+        "dimension": 86.19047619047619,
         "state": {
           "type": "markdown",
           "state": {
-            "file": "JavaScript/【05-JS数组】.md",
+            "file": "JavaScript/【13-ES6之Promise与Class类】.md",
             "mode": "source",
             "source": false
           }
@@ -75,7 +75,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "JavaScript/【05-JS数组】.md",
+                "file": "JavaScript/【13-ES6之Promise与Class类】.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -92,7 +92,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "JavaScript/【05-JS数组】.md",
+                "file": "JavaScript/【13-ES6之Promise与Class类】.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -121,7 +121,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "dab7a9e882d139a1",
@@ -133,15 +134,15 @@
   },
   "active": "f24c8d042d10d608",
   "lastOpenFiles": [
-    "JavaScript/【02-JS基本数据类型】.md",
-    "JavaScript/【05-JS数组】.md",
-    "JavaScript/【06-JS函数】.md",
-    "JavaScript/【07-DOM】.md",
-    "JavaScript/【10-正则表达式】.md",
+    "JavaScript/【12-ES6语法扩展】.md",
     "JavaScript/【11-ES6基础入门】.md",
-    "Algorithm/01_基础算法/01-快速排序.md",
-    "Algorithm/01_基础算法/01-快速排序.md.md",
-    "Algorithm/01_基础算法/快速排序.md",
-    "JavaScript/【15-HTTP、存储、Ajax】.md"
+    "JavaScript/【15-HTTP、存储、Ajax】.md",
+    "JavaScript/【14-ES6之Module模块与Babel编译及Webpack】.md",
+    "JavaScript/【13-ES6之Promise与Class类】.md",
+    "JavaScript/【02-JS基本数据类型】.md",
+    "JavaScript/【01-JS语法与变量】.md",
+    "JavaScript/【06-JS函数】.md",
+    "Html+CSS3/01-HTML基础.md",
+    "Html+CSS3/03-CSS复合选择器、元素显示模式、背景.md"
   ]
 }

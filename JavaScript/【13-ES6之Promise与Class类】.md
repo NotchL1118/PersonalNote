@@ -322,7 +322,7 @@ then 方法具有两个回调函数作为参数，`() => {}, () => {}`。
 
 3. then 方法返回的 Promise 对象的状态改变
 
-   - then 方法其实默认返回的是 undefined，即：`return undefined`，但是 ES6 的机制规定：当 then 返回 undefined 时，那么会将这个 undefined 包装成一个 Promise，并且这个 Promise 默认调用了 `resilve()` 方法（成功态），并且把 undefined 作为了 resilve() 的参数，相当于：
+   - then 方法其实默认返回的是 undefined，即：`return undefined`，但是 ES6 的机制规定：当 then 返回 undefined 时，那么会将这个 undefined 包装成一个 Promise，并且这个 Promise 默认调用了 `resolve()` 方法（成功态），并且把 undefined 作为了 resolve() 的参数，相当于：
 
      ```javascript
      const p = new Promise((resolve, reject) => {
@@ -355,7 +355,7 @@ then 方法具有两个回调函数作为参数，`() => {}, () => {}`。
          return 24;
          // 相当于：return new Promise(resolve => {resolve(24);});
      }).then((data) => {
-         console.log(data);	// 打印 undefined
+         console.log(data);	// 打印 24
      });
      ```
 
@@ -897,6 +897,9 @@ Promise.all([
 ```
 
 ![image-20220528144323405](F:\Obsidian\JavaScript\assets\image-20220528144323405.png)
+
+## 1.11 async和await
+具体看Think里的补充
 
 # 二、Class类
 
