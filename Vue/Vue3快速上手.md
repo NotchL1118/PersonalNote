@@ -85,9 +85,9 @@ vite官网：https://vitejs.cn
   - 真正的按需编译，不再等待整个应用编译完成。
 - 传统构建 与 vite构建对比图
 
-![image-20221015222143169](E:\BaiduNetdiskDownload\尚硅谷Vue\01_课件\assets\image-20221015222143169.png)
+![image-20221015222143169](https://pic.lsyfighting.cn/img/image-20221015222143169.png)
 
-![image-20221015222154238](E:\BaiduNetdiskDownload\尚硅谷Vue\01_课件\assets\image-20221015222154238.png)
+![image-20221015222154238](https://pic.lsyfighting.cn/img/image-20221015222154238.png)
 
 ```bash
 ## 创建工程
@@ -312,7 +312,7 @@ npm run dev
 
 ## 8.生命周期
 
-<div style="border:1px solid black;width:380px;float:left;margin-right:20px;"><strong>vue2.x的生命周期</strong><img src="https://v2.cn.vuejs.org/images/lifecycle.png" alt="lifecycle_2" style="zoom:33%;width:1200px" /></div><div style="border:1px solid black;width:510px;height:985px;float:left"><strong>vue3.0的生命周期</strong><img src="https://cn.vuejs.org/assets/lifecycle.16e4c08e.png" alt="lifecycle_2" style="zoom:33%;width:2500px" /></div>
+<div style="border:1px solid black;"><strong>vue2.x的生命周期</strong><img src="https://v2.cn.vuejs.org/images/lifecycle.png" alt="lifecycle_2" style="zoom:33%;width:1200px" /></div><div style="border:1px solid black;"><strong>vue3.0的生命周期</strong><img src="https://cn.vuejs.org/assets/lifecycle.16e4c08e.png" alt="lifecycle_2" style="zoom:33%;width:2500px" /></div>
 
 
 
