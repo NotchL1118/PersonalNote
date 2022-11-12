@@ -33,7 +33,7 @@
 | space-between | 弹性盒子沿主轴均匀排列，空白间距均分在相邻盒子之间 |
 | space-evenly  | 弹性盒子沿主轴均匀排列，弹性盒子和容器之间间距相等 |
 
-## 1.1 均匀对齐，两边靠边
+## 1.1 均匀对齐，两边靠边space-between
 
 ```css
 .box {
@@ -45,7 +45,7 @@
 
 ![image-20210907212244548](https://pic.lsyfighting.cn/img/image-20210907212244548.png)
 
-## 1.2 末端对齐
+## 1.2 末端对齐flex-end
 
 ```css
 .box {
@@ -56,7 +56,7 @@
 
 ![image-20210907212325001](https://pic.lsyfighting.cn/img/image-20210907212325001.png)
 
-## 1.3 行均匀分配
+## 1.3 行均匀分配space-around
 
 ```css
 .box {
@@ -67,7 +67,7 @@
 
 ![image-20210907212354499](https://pic.lsyfighting.cn/img/image-20210907212354499.png)
 
-## 1.4 全部间距相同的行均匀分配：
+## 1.4 全部间距相同的行均匀分配space-evenly
 
 ```css
 .box {
@@ -78,7 +78,7 @@
 
 ![image-20210907212432435](https://pic.lsyfighting.cn/img/image-20210907212432435.png)
 
-## 1.5 水平居中
+## 1.5 水平居中center
 
 ```css
 .box {
