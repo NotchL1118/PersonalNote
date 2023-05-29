@@ -101,7 +101,7 @@ function reverseList(head: ListNode | null): ListNode | null {
 
 # 复杂链表的复制
 
-> 难度：中等 第一个中等题目，直接看答案了，没想到
+> 难度：中等 第一个中等题目，直接看答案了
 
 ## 题目
 
@@ -200,7 +200,7 @@ var copyRandomList = function(head) {
        node = head
        let newNode = head.next
        let res = newNode
-       while(node.next&&newNode.next) {
+       while(newNode.next) {
            node.next = newNode.next
            newNode.next = newNode.next.next
            node = node.next

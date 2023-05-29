@@ -346,3 +346,51 @@ const fnc = async ()=>{
 }
 fnc();
 ```
+### 4. 面试题补充
+```js
+async function async1(){
+  console.log('async1 start')
+  await async2()
+  console.log('async1 end')
+}
+async function async2(){
+  console.log('async2')
+}
+console.log('script start')
+setTimeout(function(){
+  console.log('setTimeout') 
+},0)  
+async1();
+new Promise(function(resolve){
+  console.log('promise1')
+  resolve();
+}).then(function(){
+  console.log('promise2')
+})
+console.log('script end')
+```
+
+```js
+// script start
+// async1 start
+// async2
+// promise1
+// script end
+// async1 end
+// promise2
+// setTimeout
+```
+
+**在async中的，await之后内容，相当于promise.then里的内容，放到微任务队列里。**
+
+`script start`直接输出，然后是setTimeout注册函数到宏任务Event Queen里，等到同步任务和微任务都执行完了才执行。然后是async1执行，输出`async1 start`，然后是执行async2()函数，输出`async2`相当于执行了
+
+```js
+new Promise(function(resolve){
+	console.log('async2')
+}).then(()=>{
+    console.log('async1 end')
+})
+```
+
+这里之后的console.log('async1 end')就相当于放到了promise.then里面，会放到微任务队列，所以接下来继续执行同步任务，接下来遇到new Promise，输出`promise1`，再把回调函数放到微任务队列里，接下来是同步任务输出`script end`，最后先执行微任务队列,依次输出`async 1 end` `promise2` 最后执行宏任务队列`setTimeout`
