@@ -148,7 +148,7 @@ Array.isArray(true); // false
 
 - 遍历自身的**所有属性**：`Reflect.ownkeys()`方法返回一个由目标对象的自身属性键(包括Symbol值作为名称的属性)组成的数组，也就等价于`Object.getOwnPropertyNames(target).concat(Object.getOwnPropertySymbols(target))`
 
-- 遍历**可枚举的自身属性和继承属性**：for...in...
+- 遍历**可枚举的自身属性和继承属性**：for...in...(for in还会遍历到原型链上的属性，所有看到很多代码上，for in之后还要用hasOwnProterty来判断一下是否是自身属性，才进行下一步逻辑)
 
 # 6.如何判断两个对象是否相等
 

@@ -394,3 +394,6 @@ new Promise(function(resolve){
 ```
 
 这里之后的console.log('async1 end')就相当于放到了promise.then里面，会放到微任务队列，所以接下来继续执行同步任务，接下来遇到new Promise，输出`promise1`，再把回调函数放到微任务队列里，接下来是同步任务输出`script end`，最后先执行微任务队列,依次输出`async 1 end` `promise2` 最后执行宏任务队列`setTimeout`
+
+## 手写Promise
+
