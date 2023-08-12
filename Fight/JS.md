@@ -192,16 +192,22 @@ function isObjectEqual(obj1,obj2){
 
 > https://www.bookstack.cn/read/es6-3rd/spilt.1.docs-let.md
 
-1. var没有块级作用域，var只有函数和全局作用域，而let/const有块级作用域的概念
-2. let/const在声明变量/常量之前，是没有办法获取到值的，称为**暂时性死区(temporal dead zone，简称TDZ)**
-3. let/const是ES6提出来的，而var是ES5提出来的
+1. let/const是ES6提出来的，而var是ES5提出来的
+2. let/const在声明变量/常量之前，该变量都是不可用的，称为**暂时性死区(temporal dead zone，简称TDZ)**
+
+> var存在变量提升，即提升声明到当前作用域的最前面。let和const其实也存在，就是因为暂时性死区的存在导致变量不可获取
+
+3. var没有块级作用域，var只有函数和全局作用域，而let/const有块级作用域的概念
+
 4. const声明的是常量，而let/var声明的是变量
+
 5. const在声明时必须赋值，而let/var不必
+
 6. let/const不允许在相同作用域内，重复声明同一个变量。而var是可以的，最后一个var声明的值会覆盖之前的，比如
 
 ```js
 let a = 1; let a = 2; // 报错
-var a = 1; var 2 = 2; // 最后a的值为2
+var a = 1; var a = 2; // 最后a的值为2
 ```
 
 > 补充：
@@ -220,7 +226,7 @@ var a = 1; var 2 = 2; // 最后a的值为2
 >
 > 该代码正常运行，输出了3次abc，表明函数内部的变量i和循环变量i不在同一个作用域，有各自单独的作用域
 >
-> 2. 暂时性死区的本质就是，只要一进入当前作用域，所要使用的变量就已经存在了，但是不可获取，只有等到声明变量的那一行代码出现，才可以获取和使用该变量。
+> 2. 暂时性死区的a本质就是，只要一进入当前作用域，所要使用的变量就已经存在了，但是不可获取，只有等到声明变量的那一行代码出现，才可以获取和使用该变量。
 
 # 8.作用域
 
@@ -436,4 +442,234 @@ arr === cloneArr // false
 
 具体代码在手写md文件里
 
-## 21.sessionStorage、localStorage、Cookie的区别
+# 21.sessionStorage、localStorage、Cookie的区别
+
+# 22.ES5的继承
+
+使用原型来进行继承，举例
+
+下面是一个Shape构造函数，要让Rectangle构造函数继承Shape
+
+```ts
+function Shape() {
+  this.x = 0;
+  this.y = 0;
+}
+
+Shape.prototype.move = function (x, y) {
+  this.x += x;
+  this.y += y;
+  console.info('Shape moved.');
+};
+```
+
+总的分为两步
+
+```js
+// 第一步，子类继承父类的实例
+function Rectangle() {
+  Shape.call(this); // 调用父类构造函数
+}
+// 另一种写法
+function Rectangle() {
+  this.base = Shape;
+  this.base();
+}
+
+// 第二步，子类继承父类的原型
+Rectangle.prototype = Object.create(Shape.prototype);
+Rectangle.prototype.constructor = Rectangle;
+```
+
+**其中`Object.create()` 静态方法以一个现有对象作为原型，创建一个新对象。**
+
+采用这样的写法以后，`instanceof`运算符会对子类和父类的构造函数，都返回`true`。
+
+```
+var rect = new Rectangle();
+
+rect instanceof Rectangle  // true
+rect instanceof Shape  // true
+```
+
+上面代码中，子类是整体继承父类。有时只需要单个方法的继承，这时可以采用下面的写法。
+
+```
+ClassB.prototype.print = function() {
+  ClassA.prototype.print.call(this);
+  // some code
+}
+```
+
+上面代码中，子类`B`的`print`方法先调用父类`A`的`print`方法，再部署自己的代码。这就等于继承了父类`A`的`print`方法。
+
+# 23.变量提升/函数提升
+
+## 1.变量提升
+
+在ES6出来之前，JS并没有块级作用域这一说，只有全局作用域和局部作用域。
+
+变量提升指的是使用var声明的变量提升到他所在的作用域的最顶端。
+
+> 只提升变量，不提升赋值
+
+举个例子
+
+```
+console.log(a)   //undefined
+var a='我是谁'
+console.log(a)   //'我是谁'
+```
+
+过程相当于
+
+```js
+var a;
+console.log(a);
+a='我是谁'
+console.log(a)
+```
+
+## 2.函数提升
+
+js中创建函数有两种方式：
+- 函数声明式 function fn() {}
+- 函数表达式。var fn = function() => {} //这种更像是变量提升
+**只有函数声明才存在函数提升**；而对于赋值的匿名函数，并不会存在函数提升。
+```js
+console.log(a);    // f a()
+console.log(b);    //undefined     
+
+function a(){
+    console.log('hello')
+}
+
+var b = function(){
+    console.log('world')
+}
+
+```
+就相当于
+```js
+function a(){
+    console.log('hello')
+}
+var b;
+console.log(a);   
+console.log(b);
+b = function{
+    console.log('world')
+}
+```
+### 2.1块级作用域中的函数提升
+
+在ES6浏览器运行下面的代码会报错
+```js
+// 浏览器的 ES6 环境
+function f() { console.log('I am outside!'); }
+(function () {
+  if (false) {
+    // 重复声明一次函数f
+    function f() { console.log('I am inside!'); }
+  }
+  f();
+}());
+// Uncaught TypeError: f is not a function
+```
+原来，如果改变了块级作用域内声明的函数的处理规则，显然会对老代码产生很大影响。为了减轻因此产生的不兼容问题，ES6 在[附录 B](https://www.ecma-international.org/ecma-262/6.0/index.html#sec-block-level-function-declarations-web-legacy-compatibility-semantics)里面规定，浏览器的实现可以不遵守上面的规定，有自己的[行为方式](https://stackoverflow.com/questions/31419897/what-are-the-precise-semantics-of-block-level-functions-in-es6)。
+- 允许在块级作用域内声明函数。
+- 函数声明类似于`var`，即会提升到全局作用域或函数作用域的头部。
+- 同时，函数声明还会提升到所在的块级作用域的头部。
+
+注意，上面三条规则只对 ES6 的浏览器实现有效，其他环境的实现不用遵守，还是将块级作用域的函数声明当作`let`处理。
+根据这三条规则，浏览器的 ES6 环境中，块级作用域内声明的函数，行为类似于`var`声明的变量。上面的例子实际运行的代码如下。
+
+```javascript
+// 浏览器的 ES6 环境
+function f() { console.log('I am outside!'); }
+(function () {
+  var f = undefined;
+  if (false) {
+    function f() { console.log('I am inside!'); }
+  }
+  f();
+}());
+// Uncaught TypeError: f is not a function
+```
+
+所以如果要在块级作用域中声明函数，尽量写成函数表达式
+
+```javascript
+// 块级作用域内部的函数声明语句，建议不要使用
+{
+  let a = 'secret';
+  function f() {
+    return a;
+  }
+}
+
+// 块级作用域内部，优先使用函数表达式
+{
+  let a = 'secret';
+  let f = function () {
+    return a;
+  };
+}
+```
+
+## 3.变量提升和函数提升的优先级
+
+函数是一等公民，**函数提升优先级高于变量提升，且不会被同名变量声明覆盖，但是会被变量赋值后覆盖。**而且存在同名函数与同名变量时，优先执行函数。
+
+```js
+    console.log(typeof fn); // function
+
+    function fn() {
+        console.log('Hello World');
+    }
+
+    console.log(typeof fn); // function 
+
+    var fn = 1;
+
+    console.log(typeof fn); // number
+```
+
+实际相当于
+
+```js
+	function fn() {
+        console.log('Hello World');
+    }
+	var fn; // 注意，同名变量声明不会覆盖函数声明
+
+	console.log(typeof fn); // function
+
+	// ...原函数定义被剪切走了
+
+	console.log(typeof fn); // function
+
+	fn = 1; // 但是会被变量赋值覆盖
+
+	console.log(typeof fn); // number
+```
+
+# cookie和localStorage的区别
+
+1. 大小：cookie的存储容量较小，在4K一下，Storage要大得多，5M左右
+2. cookie会在同源的http请求中自动携带，还可以通过path属性来限制在特定的路径中才能使用，storage只是存在本地，不会自动携带
+3. 有效期不同：sessionStorage在会话窗口关闭前都有效，storage始终有效，可以持久化保存数据，除非手动清除。cookie会在设置的时间过期前有效，有max-age和expire属性来设置过期时间。
+4. 作用域不同，sessionStorage不能在不同的浏览器窗口中共享，localStorage和cookie可以在同源的窗口中共享
+
+# cookie的属性
+
+- max-age：cookie生效的秒数
+- expire：最长有效时间
+- domain:cookie在哪个域下可以被接受，并且子域名也可以访问父域名的cookie
+- path：cookie可以在哪个路径下可以被接受
+- httpOnly：是否可以通过js访问该cookie
+- secure：标记为 secure 的 Cookie 只应通过被 Https 协议加密过的请求发送给服务端
+- someSite：
+  - someSize:None: 浏览器在同站请求、跨站请求下都会发送 Cookies
+  - someSize:Strict: 浏览器只会在相同站点下发送 Cookies
+  - someSize:Lax: 与 strict 类似，不同的是它可以从外站通过链接导航到该站。

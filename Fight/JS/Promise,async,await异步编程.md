@@ -1,6 +1,6 @@
 # [Promise，async，await]
 
-> 一直忘，一直忘，😡这次记下来，取自[这里](https://www.bilibili.com/video/BV1WP4y187Tu/?spm_id_from=..search-card.all.click&vd_source=7dcb6c648b7faefd7170d0fc0494d4ad) [还有这里](https://www.bilibili.com/video/BV1WP4y187Tu/?spm_id_from=333.880.my_history.page.click&vd_source=7dcb6c648b7faefd7170d0fc0494d4ad)
+> 一直忘，一直忘，😡这次记下来，取自[这里](https://www.bilibili.com/video/BV1WP4y187Tu/?spm_id_from=..search-card.all.click&vd_source=7dcb6c648b7faefd7170d0fc0494d4ad) [还有这里](https://www.bilibili.com/video/BV1WP4y187Tu/?spm_id_from=333.880.my_history.page.click&vd_source=7dcb6c648b7faefd7170d0fc0494d4ad) [阮一峰](https://es6.ruanyifeng.com/?search=%E9%80%97%E5%8F%B7&x=4&y=9#docs/promise)
 
 ## 前言，何为异步编程
 
@@ -148,6 +148,31 @@ then方法具有两个回调函数作为参数： `()=>{},()=>{}`
 
 通常不仅仅会传递一个基本数据类型的值，会传递对象，再比如传递一个错误错误对象`reject(new Error("出错啦!"))`
 
+> 注意，调用`resolve`或`reject`并不会终结 Promise 的参数函数的执行。
+>
+> ```javascript
+> new Promise((resolve, reject) => {
+>   resolve(1);
+>   console.log(2);
+> }).then(r => {
+>   console.log(r);
+> });
+> // 2
+> // 1
+> ```
+>
+> 上面代码中，调用`resolve(1)`以后，后面的`console.log(2)`还是会执行，并且会首先打印出来。这是因为立即 resolved 的 Promise 是在本轮事件循环的末尾执行，总是晚于本轮循环的同步任务。
+>
+> 一般来说，调用`resolve`或`reject`以后，Promise 的使命就完成了，后继操作应该放到`then`方法里面，而不应该直接写在`resolve`或`reject`的后面。所以，最好在它们前面加上`return`语句，这样就不会有意外。
+>
+> ```javascript
+> new Promise((resolve, reject) => {
+>   return resolve(1);
+>   // 后面的语句不会执行
+>   console.log(2);
+> })
+> ```
+
 #### 2.6 最简单的小案例
 
 这里来个最简单的Promise封装Ajax请求来演示
@@ -239,6 +264,35 @@ then方法其实默认返回的是undefined，但是ES6的机制规定，当then
 ```
 
 当然了，如果我们需要让then返回一个失败状态的Promise对象，我们可以手动return一个Promise对象并执行reject()方法，因此，我们就可以解决回调地狱问题了👏
+
+#### 2.8 Promise.race
+
+`Promise.race()`方法同样是将多个 Promise 实例，包装成一个新的 Promise 实例。
+
+```javascript
+const p = Promise.race([p1, p2, p3]);
+```
+
+上面代码中，只要`p1`、`p2`、`p3`之中有一个实例率先改变状态，`p`的状态就跟着改变。那个率先改变的 Promise 实例的返回值，就传递给`p`的回调函数。
+
+`Promise.race()`方法的参数与`Promise.all()`方法一样，如果不是 Promise 实例，就会先调用下面讲到的`Promise.resolve()`方法，将参数转为 Promise 实例，再进一步处理。
+
+下面是一个例子，如果指定时间内没有获得结果，就将 Promise 的状态变为`reject`，否则变为`resolve`。
+
+```javascript
+const p = Promise.race([
+  fetch('/resource-that-may-take-a-while'),
+  new Promise(function (resolve, reject) {
+    setTimeout(() => reject(new Error('request timeout')), 5000)
+  })
+]);
+
+p
+.then(console.log)
+.catch(console.error);
+```
+
+上面代码中，如果 5 秒之内`fetch`方法无法返回结果，变量`p`的状态就会变为`rejected`，从而触发`catch`方法指定的回调函数。
 
 ## async和await
 
