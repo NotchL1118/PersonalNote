@@ -302,6 +302,12 @@ JS代码的执行由浏览器中的JS解析器来执行，JS执行JS代码时，
 
 JS对象是通过引用类型，创建的每个新对象并没有属于自己的原型副本，当原型修改时，所有与之相关的对象都会继承这一改变
 
+## 可能的追问
+
+- `Function.__proto__`
+
+![image-20230814161237116](./assets/image-20230814161237116.png)
+
 # 14.new操作符的实现
 
 1. 首先新建一个空对象
@@ -331,25 +337,24 @@ JS对象是通过引用类型，创建的每个新对象并没有属于自己的
 
 在 JavaScript 中，每当创建一个函数，闭包就会在函数创建的同时被创建出来。可以在一个内层函数中访问到其外部的作用域。
 
-当函数上下文被创建出来，内部的[[environment]]属性,ES5之前是[[Scope]]属性,保存着父级的词法环境，就算父级上下文销毁了，它的词法环境还存在在内存中并且依然被内部函数的词法环境引用着，所以不会被垃圾回收机制回收，变量属性依然保存在内存中，内部函数依然可以直接从内存中取值，也就形成了闭包。可以说JS中每一个函数都是一个闭包
+当函数被创建出来，内部的[[environment]]属性,ES5之前是[[Scope]]属性,保存着父级的词法环境，就算父级上下文销毁了，它的词法环境还存在在内存中并且依然被内部函数的词法环境引用着，所以不会被垃圾回收机制回收，变量属性依然保存在内存中，内部函数依然可以直接从内存中取值，也就形成了闭包。可以说JS中每一个函数都是一个闭包
 
 优点作用就是可以保护私有变量，避免全局变量污染，延长局部变量的生命周期。一开始的模块化就有用过这种方式，还有JQuery库也是这么实现的，还有各种JS事件也利用了闭包，节流防抖等等。
 
 # 16.this的理解
 
-**概念：**
+(JS的this是执行上下文中一个特殊的属性)
 
-this是JS的一个关键字，它是函数运行时自动生成的一个内部对象，只能在内部使用，随着函数使用情况不同，this指向会发生改变，但有一个总原则 **this总是指向调用函数的对象**
+JS的this指向我觉得是个设计缺陷，js是静态作用域，而this指向是运行时绑定的，它的指向取决于调用时的条件，更偏向于动态作用域(我感觉是挺万恶的)。总的原则就是谁调用的就指向谁。
 
-**常见指向：**
+js里函数调用有4种方法。第一个是作为对象函数调用，这时候就指向调用的函数。还有一个是作为函数调用，这时候this指向全局对象。箭头函数又比较特别，箭头函数的this某种程度上就规避了一开始的设计缺陷，箭头函数没有自己的this，他的this和外层词法环境的this指向一致，它的取值规范和变量类似，沿着作用域链一层一层向上找。
 
-1. 当作为普通函数执行时，this指向window，严格模式下，指向undefined
-2. setTimeOut、数组的forEach、map等方法，this指向window
-3. 函数作为对象的方法被调用时，this指向该对象
-4. 箭头函数没有自己的this，它捕获其所在上下文的this，默认指向调用者的父级作用域。
-5. call、apply、bind可以显式的改变this指向
+第三种是作为构造函数，这时候this指向新的实例对象。
+
+最后一个是显式调用，就是call/apply/bind，this就指向手动指定的对象。
 
 # 17.箭头函数和普通函数的区别
+
 1. 箭头函数比普通函数更加简洁
 	1. 如果没有参数，只写一个()即可
 	2. 如果只有一个参数，可以省去参数的括号
@@ -704,3 +709,166 @@ JS是单线程的，但是浏览器不是单线程的。同步任务进入主线
 在一次事件循环中，当主线程同步任务执行完了，执行栈为空了，就会从微任务队列中依次取出函数执行，如果有新增的微任务，也会一直执行。然后微任务执行完了，会执行一次渲染函数。然后会去从宏任务队列中再取出一个任务来执行。依次不断往复。
 
 这是JS一个很显著的特点吧。它的设计目的决定了它不可能多线程，就有了事件循环机制来模拟出多线程。
+
+# 28. 继承
+
+## 原型链继承
+
+```js
+//原型链继承
+function Parent() {
+  this.name = 'Jerry'
+  this.food = ['apple'];
+}
+Parent.prototype.say = function () {
+  console.log('hello');
+}
+
+Son.prototype = new Parent() 
+
+function Son() {
+  this.age=18
+}
+
+let s1 = new Son()
+
+console.log(s1.name);  //Jerry
+console.log(s1.say());  //hello
+```
+
+优点
+
+- 父类方法可以复用
+
+缺点
+
+- 父类的所有引用类型数据(对象、数组)会被子类共享，更改了一个字类的数据，其他数据都会受到影响
+- 子类不能给父类传参
+
+## 构造函数继承
+
+```js
+//经典继承
+function Parent(name) {
+  this.name = name
+}
+Parent.prototype.say = function () {
+  console.log('hello');
+}
+
+function Son(name) {
+  Parent.call(this,name)   //this.name = name
+  this.age=18
+}
+
+let s1= new Son('Jerry')
+
+console.log(s1.name);   //Jerry
+console.log(s1.say());  //TypeError: s1.say is not a function
+```
+
+优点
+
+- 父类的引用数据类型数据不会被子类共享，不会互相影响
+
+缺点
+
+- 字类不能访问父类原型对象上的方法和参数
+
+## 组合继承
+
+将前两种方案组合一下
+
+```js
+//组合继承
+function Parent(name) {
+  this.name = name
+}
+
+Parent.prototype.say = function () {
+  console.log('hello');
+}
+
+Son.prototype = new Parent();
+
+function Son(name) {
+  Parent.call(this, name)   //继承到父类实例属性
+  this.age = 18
+
+}
+
+let s1 = new Son('Jerry')
+
+console.log(s1.name);   //Jerry
+console.log(s1.say());  //hello
+```
+
+优点
+
+- 父类可以复用
+- 父类构造函数中的引用类型数据不会被共享
+
+缺点
+
+- 会调用两次父类的构造函数，会有两份一样的属性,影响性能
+
+![image-20230814152359756](./assets/image-20230814152359756.png)
+
+## 寄生组合继承(也是第22条的继承方式)
+
+非常完美
+
+```js
+//组合继承
+function Parent(name) {
+  this.name = name
+}
+
+Parent.prototype.say = function () {
+  console.log('hello');
+}
+
+Son.prototype = Object.create(Parent.prototype) // 拷贝一份Parent的原型对象
+Son.prototype.constructor = Son // 这一步很重要
+
+// 如果没有Object.create方法，这是ES5的，可以用一个函数作为过渡
+//function F() {}
+//F.prototype = Parent.prototype
+//Son.prototype = new F();
+//Son.prototype.constructor = Son
+
+function Son(name) {
+  Parent.call(this, name)   //继承到父类实例属性
+  this.age = 18
+
+}
+
+let s1 = new Son('Jerry')
+
+console.log(s1.name);   //Jerry
+console.log(s1.say());  //hello
+```
+
+## ES6的extends语法
+
+```js
+class Parent {
+  constructor (value) {
+    this.val = value
+  }
+  getValue() { 
+    console.log(this.val);
+  }
+}
+
+class Child extends Parent {
+  constructor (value) {
+    super(value)
+    //super(); this.val = value
+  }
+}
+
+let c = new Child(1)
+c.getValue()
+// console.log(c);
+```
