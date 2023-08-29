@@ -37,18 +37,18 @@ Http的 HTTP 协议是无状态的，所谓的无状态就是客户端每次想�
 
 ## 1.2 属性
 
-| 属性名称   | 属性含义                                                     |
-| ---------- | ------------------------------------------------------------ |
-| name       | Cookie的名称                                                 |
-| value      | cookie的值                                                   |
-| comment    | cookie的描述信息                                             |
-| domain     | 可以访问该cookie的域名                                       |
-| expires    | cookie的过期时间，具体某一时间                               |
-| maxAge     | cookie的过期时间，比如多少秒后cookie过期                     |
-| path       | cookie的使用路径                                             |
-| secure     | cookie是否使用安全协议传输，比如SSL                          |
-| version    | cookie的使用版本号                                           |
-| isHttpOnly | 指定该 Cookie 无法通过 JavaScript 脚本拿到，比如 Document.cookie 属性、XMLHttpRequest 对象和 Request API 都拿不到该属性。这样就防止了该 Cookie 被脚本读到，只有浏览器发出 HTTP 请求时，才会带上该 Cookie。 |
+| 属性名称 | 属性含义                                                     |
+| -------- | ------------------------------------------------------------ |
+| name     | Cookie的名称                                                 |
+| value    | cookie的值                                                   |
+| comment  | cookie的描述信息                                             |
+| domain   | 可以访问该cookie的域名                                       |
+| expires  | cookie的过期时间，具体某一时间                               |
+| maxAge   | cookie的过期时间，比如多少秒后cookie过期                     |
+| path     | cookie的使用路径                                             |
+| secure   | cookie是否使用安全协议传输，比如SSL                          |
+| version  | cookie的使用版本号                                           |
+| httpOnly | 指定该 Cookie 无法通过 JavaScript 脚本拿到，比如 Document.cookie 属性、XMLHttpRequest 对象和 Request API 都拿不到该属性。这样就防止了该 Cookie 被脚本读到，只有浏览器发出 HTTP 请求时，才会带上该 Cookie。 |
 
 ## 1.3 用来干什么
 

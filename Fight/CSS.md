@@ -45,14 +45,14 @@
    1. DOM结构:透明度为100%，不会让元素从渲染树上消失，**渲染元素继续占据空间**，只是内容不可见
    2. 事件监听:可以进行DOM事件监听，可以点击
    3. 性能:应用了transition或者animation的 opacity 元素，浏览器会将渲染层提升为合成层，不会触发重绘。否则就会触发重绘
-   4. 继承:继承属性，但子元素不能设置`opacity:0`来取消隐藏
+   4. 继承:继承属性，但子元素不能设置`opacity:1`来取消隐藏
    5. 场景:和transition搭配
    6. transition:支持`opacity`，opacity可以延时显示和隐藏
 
 > WebKit 内核的浏览器中，具有 transition 或 animation 的 opacity 元素，渲染层被提升为合成层。
 > translateZ(0) 或 translate3d(0,0,0)可以人为强制创建合成层。
 >
-> 而元素提升为合成层后，transform 和 opacity 不会触发 重绘制。如果不是合成层，则会触发重绘。
+> 而元素提升为合成层后，transform 和 opacity 不会触发重绘制。如果不是合成层，则会触发重绘。
 >
 > 因为透明度改变后，GPU在绘制页面时可以改变之前画好的页面的透明值，而无需整体的重绘。
 > 但是这个被修改的opacity必须为一个单独的图层，否则图层中的其他节点也会被重绘。
@@ -80,3 +80,65 @@ Block formatting context 块级格式化上下文
 - margin重合(上下两个div，margin-top和bottom取最大者，给两个元素的父元素之一或都设置BFC，因为BFC本质是内部元素不会影响到外部元素)
 - margin塌陷(父子元素，给子元素设置margin-top，结果是父元素移动，给父元素设置BFC，因为子元素影响到父元素了)
 - 高度坍塌(父子元素，给子元素设置float，父元素高度坍塌，设置BFC之后，为了不影响到父元素外边的元素，父元素就需要连浮动的子元素也一起计算，也可以用清除浮动(带来的影响))
+
+# 4.元素垂直水平居中
+
+1. 绝对定位 + transfrom (不限宽高)
+
+```css
+.father {
+  position: relative;
+}
+.son {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+```
+
+2. 绝对定位 + 负的margin-top和margin-left(必须设置宽高)
+
+```css
+.father {
+  position: relative;
+}
+.son {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 200px;
+  height: 200px;
+  margin-left: -100px;
+  margin-top: -100px;
+}
+```
+
+3. 绝对定位 + 四个方向都为0 + margin:auto(必须设置宽高)
+
+```css
+.father {
+  position: relative;
+}
+.son {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0px;
+  margin: auto;
+  height: 100px;
+  width: 100px;
+}
+```
+
+4. flex
+
+```css
+.father {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+```
+

@@ -401,6 +401,7 @@ const fnc = async ()=>{
 fnc();
 ```
 ### 4. 面试题补充
+
 ```js
 async function async1(){
   console.log('async1 start')
@@ -449,5 +450,77 @@ new Promise(function(resolve){
 
 这里之后的console.log('async1 end')就相当于放到了promise.then里面，会放到微任务队列，所以接下来继续执行同步任务，接下来遇到new Promise，输出`promise1`，再把回调函数放到微任务队列里，接下来是同步任务输出`script end`，最后先执行微任务队列,依次输出`async 1 end` `promise2` 最后执行宏任务队列`setTimeout`
 
-## 手写Promise
+### 5.try/catch问题
+
+try...catch 不能捕获 promise 的错误
+
+注意这里说的 `try...catch` 并不是 Promise 内部 “隐式的 try...catch”，而是想在 Promise 外部通过使用`try...catch` 捕获其内部的错误，请看下面两个示例：
+
+```js
+js复制代码function fn1() {
+    try {
+        new Promise((resolve, reject) => {
+            throw new Error('promise1 error')
+        })
+    } catch (error) {
+        console.log(e.message);
+    }
+}
+
+function fn2() {
+    try {
+        Promise.reject('promise2 error');
+    } catch (error) {
+        console.log(error);
+    }
+}
+```
+
+以上两个 try...catch 都不能捕获到 error，因为 promise 内部的错误不会冒泡出来，而是被 promise 吃掉了。所以，在 try...catch 看来，这只是一个 promise，而不是语法错误，至于里面具体是什么，它并不知道也不会处理。
+
+只有通过 promise 的 then 和 catch 才可以捕获，所以单用 Promise 一定要写 catch ！
+
+**async/await 很好的解决了这个问题**，相比于 `promise.then`，`await` 只是获取 promise 的结果的一个更优雅的语法，并且也更易于读写。
+
+如果一个 promise 正常 resolve，`await promise` 返回的就是其结果。但是如果 promise 被 reject，它将 **throw 这个 error**，就像在这一行有一个 `throw` 语句那样，`try...catch` 就能顺理成章地捕获到了。
+
+请看以下常见的请求例子:
+
+```js
+js复制代码// 模拟请求
+function http(params) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (params === 0) reject("error")
+            resolve("success")
+        }, 1000);
+    })
+}
+
+// 业务调用
+async function query(params) {
+    try {
+        const data = await http(params)
+        console.log('data:', data);
+    } catch (error) {
+        console.log('error:', error);
+    }
+}
+
+query(0)
+```
+
+### 6. 如何中断promise
+
+最后，如果等到最后.catch()处理完, 想结束promise链, 不想再让其链式调用下去了, 可以作如下操作:
+
+```js
+js复制代码.catch((err) => {
+  console.log('onRejected', err);
+  // 中断promise链:
+  return new Promise(() => {})
+})
+```
+
+通过返回一个状态一直为 pending 的 promise 即可。
 
