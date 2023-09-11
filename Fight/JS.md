@@ -25,6 +25,8 @@
 > 栈可以改变原始值
 >
 > 栈中的数据会被自动清理，堆中的需要手动清除
+>
+> Symbol.for可以公用同一个Symbol对象
 
 # 2.null和undefined的区别
 
@@ -106,7 +108,7 @@ function myInstanceof(left,right) {
 }
 ```
 
-3. Object.prototype.toString()
+3. Object.prototype.toString().call
 
 ```js
 Object.prototype.toString({}) // "[object Object]"
@@ -144,7 +146,7 @@ Array.isArray(true); // false
 # 5.如何遍历对象的属性
 
 - 遍历自身**可枚举的属性**(可枚举、非继承属性):`Object.keys`,返回一个由给定对象的自身可枚举属性组成的数组
-- 遍历自身**除Symbol值作为名称的属性之外的所有属性**(可枚举、不可枚举、非继承属性):`Object.getOwnPropertyNames()`方法返回一个由指定对象的所有自身属性的属性名组成的数组（包括不可枚举属性**但不包括 Symbol 值作为名称的属性**）
+- 遍历自身**除Symbol值作为名称的属性之外的所有属性**(可枚举、不可枚举、非继承属性):`Object.getOwnPropertyNames()`方法返回一个由指定对象的所有自身属性的属性名组成的数组,Symbol以外的非继承属性（包括不可枚举属性**但不包括 Symbol 值作为名称的属性**）
 
 - 遍历自身的**所有属性**：`Reflect.ownkeys()`方法返回一个由目标对象的自身属性键(包括Symbol值作为名称的属性)组成的数组，也就等价于`Object.getOwnPropertyNames(target).concat(Object.getOwnPropertySymbols(target))`
 
@@ -184,7 +186,6 @@ function isObjectEqual(obj1,obj2){
         }
     }
 	return true
-    
 }
 ```
 
@@ -253,6 +254,18 @@ bar();
 // 结果是 1
 ```
 
+## 个人总结
+
+作用域规定了代码块中资源的可见性，一般分为全局作用域、函数作用域、块级作用域；
+
+全局作用域：在最外层函数以及最外层大括号外声明的变量，都处在全局作用域中，全局作用域下的变量可以在代码的任意位置访问；
+
+函数作用域：在函数内部所拥有的作用域；
+
+块级作用域：用大括号划分的作用域，需要用let/const来声明变量
+
+作用域链：JS是词法作用域，也就是静态作用域，作用域在代码层面以及确定好了，在执行上下文中有一个[[Scope]]属性保存着对父级作用域的引用，会用这个属性链接上执行上下文的活动对象形成作用域链，类似于`活动对象.concat([[Scope]])`。当js查找变量时，先在当前作用域中查找，如果没找到，就会沿着作用域链向外层作用域寻找，直到找到或者在全局作用域依然找不到，在严格模式下就会报错，非严格模式下会隐式的生成该全局变量
+
 # 9.JS的预解析
 
 当HTML解析器遇到Script标签时，因为觉得Script内的脚本可能会修改DOM，所以会停止文档的解析，脚本执行完成之后才会继续解析后续的内容。如果script标签是引用类型，那么会让网络进程去下载这段代码，并且在下载过程中，也会让HTML解析器停止解析。
@@ -267,10 +280,11 @@ bar();
 
 
 
-# 11.onClick和addListener区别
+# 11.onClick和addEventListener区别
 
-1. onClick默认只捕获冒泡事件，addlistener由传入的第二个参数控制(默认false为捕获冒泡阶段，true为捕获阶段)
-2. onClick重复绑定会覆盖，addListener可以同一事件绑定多个回调
+1. onClick默认只捕获冒泡事件，addEventListener由传入的第二个参数控制(默认false为冒泡阶段，true为捕获阶段)
+2. onClick重复绑定会覆盖，addEventListener可以同一事件绑定多个回调
+3. onClick取消事件，重新赋值为null，addEventListener用removeEventListener
 
 # 12.Array.from()和Array.of()的使用
 
@@ -306,22 +320,40 @@ JS对象是通过引用类型，创建的每个新对象并没有属于自己的
 
 ![image-20230814161237116](./assets/image-20230814161237116.png)
 
+- `Function.prototype.__proto__`
+
+![image-20230822230714711](./assets/image-20230822230714711.png)
+
+- `Array.__proto__是什么？`
+
+![image-20230901232916894](./assets/image-20230901232916894.png)
+
+- `Object.__proto__呢？`
+
+![image-20230901232939831](./assets/image-20230901232939831.png)
+
+​	因为`Array和Object都是构造函数，所以原型自然是Function.protoype`
+
+- 你觉得JS为什么要有原型这种机制？
+  - JavaScript采用原型编程，所有对象都能共享原型上的方法，**节省内存**;
+  - 同时基于原型这一实现思想，JavaScript通过找对原型链，**方便地实现了继承**。
+
 # 14.new操作符的实现
 
 1. 首先新建一个空对象
 2. 将新建空对象的原型指向构造函数的原型对象
 3. 更改this指向新建对象，执行一次构造函数(为新对象增加属性)
-4. 判断构造函数的返回值类型，如果是引用类型，就返回这个应用类型的对象，如果是值类型，就返回第一步新建的对象
+4. 判断构造函数的返回值类型，如果是引用类型，就返回这个引用类型的对象，如果是值类型，就返回第一步新建的对象
 
 ```js
 	function myNew(context) {
-        let newObj = null;
-        let constructor = Array.prototype.shift.call(arguments);
-        let result = null;
         if(typeof constructor !== 'function'){
             console.error("type error");
             return;
         }
+        let newObj = null;
+        let constructor = Array.prototype.shift.call(arguments);
+        let result = null;
         newObj = Object.create(constructor.prototype);
         result = constructor.apply(newObj,arguments);
         let flag = result && (typeof result ==='object' || typeof result === 'function')
@@ -335,21 +367,21 @@ JS对象是通过引用类型，创建的每个新对象并没有属于自己的
 
 在 JavaScript 中，每当创建一个函数，闭包就会在函数创建的同时被创建出来。可以在一个内层函数中访问到其外部的作用域。
 
-当函数被创建出来，内部的[[environment]]属性,ES5之前是[[Scope]]属性,保存着父级的词法环境，就算父级上下文销毁了，它的词法环境还存在在内存中并且依然被内部函数的词法环境引用着，所以不会被垃圾回收机制回收，变量属性依然保存在内存中，内部函数依然可以直接从内存中取值，也就形成了闭包。可以说JS中每一个函数都是一个闭包
+当函数被创建出来，内部的[[environment]]属性,ES5之前是[[Scope]]属性,保存着对父级词法环境的引用，就算父级执行上下文销毁了，它的词法环境还存在在内存中并且依然被内部函数的词法环境引用着，所以不会被垃圾回收机制回收，变量属性依然保存在内存中，内部函数依然可以直接从内存中取值，也就形成了闭包。可以说JS中每一个函数都是一个闭包
 
-优点作用就是可以保护私有变量，避免全局变量污染，延长局部变量的生命周期。一开始的模块化就有用过这种方式，还有JQuery库也是这么实现的，还有各种JS事件也利用了闭包，节流防抖等等。
+优点作用就是可以保护私有变量，延长局部变量的生命周期；避免全局变量污染。一开始的模块化就有用过这种方式，还有JQuery库也是这么实现的，还有各种JS事件也利用了闭包，节流防抖等等。
 
 # 16.this的理解
 
-(JS的this是执行上下文中一个特殊的属性)
+(JS的this是执行上下文中一个特殊的属性，表明了调用者的信息)总的原则就是谁调用的就指向谁。
 
-JS的this指向我觉得是个设计缺陷，js是静态作用域，而this指向是运行时绑定的，它的指向取决于调用时的条件，更偏向于动态作用域(我感觉是挺万恶的)。总的原则就是谁调用的就指向谁。
-
-js里函数调用有4种方法。第一个是作为对象函数调用，这时候就指向调用的函数。还有一个是作为函数调用，这时候this指向全局对象。箭头函数又比较特别，箭头函数的this某种程度上就规避了一开始的设计缺陷，箭头函数没有自己的this，他的this和外层词法环境的this指向一致，它的取值规范和变量类似，沿着作用域链一层一层向上找。
+js里函数调用有4种方法。第一个是作为对象函数调用，这时候就指向调用的对象。还有一个是作为函数调用，这时候this指向全局对象。箭头函数又比较特别，箭头函数的this某种程度上就规避了一开始的设计缺陷，箭头函数没有自己的this，他的this和外层词法环境的this指向一致，它的取值规范和变量类似，沿着作用域链一层一层向上找。
 
 第三种是作为构造函数，这时候this指向新的实例对象。
 
-最后一个是显式调用，就是call/apply/bind，this就指向手动指定的对象。
+最后一个是显式调用，就是call/apply/bind，this就指向显式调用的对象。
+
+JS的this指向我觉得是个设计缺陷，js是静态作用域，而this指向是运行时绑定的，它的指向取决于调用时的条件，更偏向于动态作用域(我感觉是挺万恶的)。
 
 # 17.箭头函数和普通函数的区别
 
@@ -360,21 +392,42 @@ js里函数调用有4种方法。第一个是作为对象函数调用，这时�
 	4. 如果函数体不需要返回值，且只有一句话，可以在语句前面加一个void `let fun = () => void doseNotReturn()`
 2. 箭头函数没有自己的this、prototype、super、new.target、arguments(使用rest代替)
 3. 箭头函数不能作构造函数，也就是不能使用new命令(箭头函数没有prototype)
-4. 使用call、apply、bind并不能改变箭头函数中的this指向，前两者只会传入参数并调用函数，bind方法只会返回一个预设参数的新函数
+4. 箭头函数没有自己的this，他的this和外层词法环境的this指向一致，它的取值规范和变量类似，沿着作用域链一层一层向上找。使用call、apply、bind并不能改变箭头函数中的this指向，前两者只会传入参数并调用函数，bind方法只会返回一个预设参数的新函数
 # 18.JS中内存泄露的几种情况
+
 内存泄漏一般指系统进程中不再使用的内存，如果没有及时释放，就造成资源浪费，导致程序运行减慢乃至系统崩溃。
+
+程序认为一个变量已经没用了，但是垃圾回收机制认为他还有用，没有及时回收，就会造成内存泄漏
+
 原因一般有
-1. **全局变量**：在局部作用域中，垃圾回收机制可以做出判断回收资源；但是对于全局变量，很难判断什么时候不用这些变量，无法正常回收。
-	1. 尽量少使用全局变量
-	2. 使用严格模式
+
+1. **意外全局变量**：在局部作用域中，垃圾回收机制可以做出判断回收资源；但是对于全局变量，很难判断什么时候不用这些变量，无法正常回收。
+  1. 尽量少使用全局变量
+  2. 使用严格模式
 2. **闭包引起的内存泄漏**：闭包可以延长局部变量的生命周期，如果在使用完毕后没有清理闭包，可能会引起内存泄漏
 3. **被遗忘的定时器**：定时器和延时器不再需要使用，且没有被清理时，导致定时器回调函数及内部变量没有被回收就会造成内存泄漏。
-	解决方法：当不需要定时器时，及时使用clearInterval或者clearTimeout手动清理
+  解决方法：当不需要定时器时，及时使用clearInterval或者clearTimeout手动清理
 4. **事件监听**：垃圾回收机制不好判断事件是否需要被接触，导致回调函数不能被释放，需要手动接触
-	解决方法：即使使用removeEventListener移除事件监听
+  解决方法：即使使用removeEventListener移除事件监听
 5. **元素引用没有清理**
-	解决方法：手动设置元素的引用为null
+  解决方法：手动设置元素的引用为null
 6. **console**：传递给console.log的对象不能被垃圾回收，可能会出现内存泄漏
+
+## 18.1 如何查找内存泄漏
+
+通过浏览器开发者工具Performance(性能)、Memory(内存)选项卡查看
+
+通过性能选项卡录制页面，等待页面加载完成后，点击stop按钮，面板上就会显示内存占用情况
+
+如果内存占用基本平稳，接近水平，就说明不存在内存泄漏。反之，就是内存泄漏了。
+
+![在这里插入图片描述](./assets/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzQ4Nzc4Mg==,size_16,color_FFFFFF,t_70.png)
+
+还可以查看Memory选项卡，这里显示了每一项的内存占用情况，查看是哪些部分内存占用率高
+
+![image.png](./assets/062db3ffe625413eb5fb907ff62c101ctplv-k3u1fbpfcp-zoom-in-crop-mark1512000.webp)
+
+
 
 # 19.浅拷贝
 
@@ -413,6 +466,14 @@ console.log(obj1); //{a:2,b:{c:2}}
 console.log(obj2); //{a:1,b:{c:2}}
 ```
 
+3. Object.defineProperties
+
+```js
+function shallowCopy(obj) {
+    return Object.defineProperties({}, Object.getOwnPropertyDescriptors(obj));
+}
+```
+
 **数组进行浅拷贝:**
 
 1. `Array.prototype.slice(start,end)`
@@ -436,6 +497,12 @@ let cloneArr = arr.concat()
 arr === cloneArr // false
 ```
 
+3. 展开运算符
+
+```js
+let arr3 = [...arr];
+```
+
 # 20.深拷贝
 
 - 浅拷贝：如果属性是基础类型，拷贝的就是基础类型的值；如果是引用类型，拷贝的就是引用地址，即拷贝一层，深层次的引用类型则共享内存地址
@@ -446,6 +513,12 @@ arr === cloneArr // false
 具体代码在手写md文件里
 
 > [使用json.stringify会出现的问题](https://blog.csdn.net/qq_36566924/article/details/123766241)
+>
+> 如果obj里有函数，undefined，则序列化的结果会把函数、undefined丢失。
+> 如果obj里面存在时间对象,JSON.parse(JSON.stringify(obj))之后，时间对象变成了字符串。
+> 如果obj里有NaN、Infinity和-Infinity，则序列化的结果会变成null。
+> JSON.stringify()只能序列化对象的可枚举的自有属性。如果obj中的对象是有构造函数生成的，则使用JSON.parse(JSON.stringify(obj))深拷贝后，会丢弃对象的constructor。如果对象中存在循环引用的情况也无法正确实现深拷贝。
+> 如果obj里有RegExp、Error对象，则序列化的结果将只得到空对象。
 
 # 21.点击刷新按钮或者按 F5、按 Ctrl+F5 （强制刷新）、地址栏回车有什么区别？
 
@@ -671,12 +744,14 @@ function f() { console.log('I am outside!'); }
 
 1. 大小：cookie的存储容量较小，在4K左右，Storage要大得多，5M左右
 2. cookie会在同源的http请求中自动携带，还可以通过path属性来限制在特定的路径中才能使用，storage只是存在本地，不会自动携带
-3. 有效期不同：sessionStorage在会话窗口关闭前都有效，storage始终有效，可以持久化保存数据，除非手动清除。cookie会在设置的时间过期前有效，有max-age和expire属性来设置过期时间。
+3. 有效期不同：sessionStorage在会话窗口关闭前都有效，localStorage始终有效，可以持久化保存数据，除非手动清除。cookie会在设置的时间过期前有效，有max-age和expire属性来设置过期时间。
 4. 作用域不同，sessionStorage不能在不同的浏览器窗口中共享，localStorage和cookie可以在同源的窗口中共享
 
 # 25.cookie的属性
 
 > cookie的诞生是为了解决http的无状态特点产生的，不用于存储数据
+>
+> [这个讲的相当不错](https://www.bilibili.com/video/BV1uG4y1t7dm/?spm_id_from=333.880.my_history.page.click&vd_source=7dcb6c648b7faefd7170d0fc0494d4ad)
 
 - Name:cookie名称
 - value:cookie的值
@@ -686,6 +761,10 @@ function f() { console.log('I am outside!'); }
 - domain:cookie在哪个域下可以被接受，并且子域名也可以访问父域名的cookie
 
 > 子域名可以设置父域名的cookie，但是父域名不能给子域名设置cookie
+>
+> 当设置为`.a.com`时候，子域名就可以访问该cookie，表明该cookie作用于当前域和子域
+>
+> 如果手动设置cookie的时候没手动设置domain，就只会在当前域生效，而手动设置了`a.com`，最后结果还是`.a.com`，非常神奇
 
 - path：cookie可以在哪个路径下可以被接受
 - httpOnly：是否可以通过js访问该cookie
@@ -693,7 +772,9 @@ function f() { console.log('I am outside!'); }
 - someSite：设置跨站策略
   - someSize:None: 浏览器在同站请求、跨站请求下都会发送 Cookies
   - someSize:Strict: 浏览器只会在相同站点下发送 Cookies
-  - someSize:Lax: 与 strict 类似，不同的是它可以从外站通过链接导航到该站。
+  - someSize:Lax: 默认值，只允许部分跨站请求携带cookie
+  
+  ![image-20230830223646522](./assets/image-20230830223646522.png)
 
 # 26.对防抖节流的认识
 
@@ -712,9 +793,9 @@ function f() { console.log('I am outside!'); }
 - 同步任务
 - 异步任务
 
-JS是单线程的，但是浏览器不是单线程的。同步任务进入主线程依次调用执行，而异步任务先到Event Table中注册回调函数，由专门的线程进行控制，当指定事情完成后，会将回调函数移入Event Queue回调队列中，当主线程任务为空了，(JS引擎有额外的进程进行监督)，就会从Event Queue依次读取回调函数执行。这个过程不断往复，称为事件循环。
+(JS是单线程的，但是浏览器不是单线程的)。两种任务分别进入不同场所，同步任务进入主线程依次调用执行，而异步任务先到Event Table中注册回调函数，由专门的线程进行控制，当指定事情完成后，会将回调函数移入Event Queue回调队列中，当主线程任务为空了，(JS引擎有额外的进程进行监督)，就会从Event Queue依次读取回调函数执行。这个过程不断往复，称为事件循环。
 
-而异步任务也分为两种，微任务和宏任务。两者的回调函数会移入不同的回调队列中。微任务会比宏任务先执行。
+而异步任务也分为两种，微任务和宏任务。两者的回调函数会移入不同的任务队列中。微任务会比宏任务先执行。
 
 常见的宏任务有，整个script代码块，setTimeout，setInterval，ajax，DOM事件等等。
 
@@ -753,10 +834,22 @@ console.log(s1.say());  //hello
 优点
 
 - 父类方法可以复用
+- 可以访问到父类原型对象上的属性
 
 缺点
 
-- 父类的所有引用类型数据(对象、数组)会被子类共享，更改了一个字类的数据，其他数据都会受到影响
+- 子类继承而来的引用类型数据(对象、数组)是被子类共享的，更改了一个子类实例对象的数据，其他子类实例对象都会受到影响，因为他们继承的都是同一份
+
+  - ```js
+    let s1 = new Son()
+    console.log(s1.name) // 'Jeerry'
+    s1.name = 'TOM' // 会给s1对象自身新增一个属性name
+    s1.food.push('juice');
+    let s2 = new Son()
+    console.log(s2.name) // 'jerry' // 原型上的name
+    console.log(s2.food) // ['apple','juice']; 收到了影响
+    ```
+
 - 子类不能给父类传参
 
 ## 构造函数继承
@@ -784,10 +877,11 @@ console.log(s1.say());  //TypeError: s1.say is not a function
 优点
 
 - 父类的引用数据类型数据不会被子类共享，不会互相影响
+- 子类可以给父类传参
 
 缺点
 
-- 字类不能访问父类原型对象上的方法和参数
+- 子类不能访问父类原型对象上的方法和参数
 
 ## 组合继承
 
@@ -821,10 +915,11 @@ console.log(s1.say());  //hello
 
 - 父类可以复用
 - 父类构造函数中的引用类型数据不会被共享
+- 可以访问父类原型对象上的方法
 
 缺点
 
-- 会调用两次父类的构造函数，会有两份一样的属性,影响性能
+- 会调用两次父类的构造函数，会有两份一样的属性,浪费空间，影响性能
 
 ![image-20230814152359756](./assets/image-20230814152359756.png)
 
@@ -862,6 +957,8 @@ console.log(s1.name);   //Jerry
 console.log(s1.say());  //hello
 ```
 
+- 解决了组合继承会有两份同样属性的问题
+
 ## ES6的extends语法
 
 ```js
@@ -888,14 +985,14 @@ c.getValue()
 
 # 29.进程和线程的区别
 
-从本质上说，进程和线程都是 CPU 工作时间片的一个描述：
+从本质上说，进程和线程都是对 CPU 工作时间片的一个描述：
 
 - 进程描述了 CPU 在运行指令及加载和保存上下文所需的时间，放在应用上来说就代表了一个程序。
 - 线程是进程中的更小单位，描述了执行一段指令所需的时间。
 
 **进程是资源分配的最小单位，线程是CPU调度的最小单位。**
 
-一个进程就是一个程序的运行实例。详细解释就是，启动一个程序的时候，操作系统会为该程序创建一块内存，用来存放代码、运行中的数据，我们把这样的一个运行环境叫**进程**。而线程我个人理解为进程的进程，进程的出现是为了解决多进程资源消耗太大的问题，以及提高响应速度，比如一个文本编译器进程，就需要有线程进行编辑操作，有线程进行保存操作。有线程进行渲染操作。线程之间可以共享进程的资源，相比之下，进程之间通信就麻烦的多，有管道通信， 消息队列通信，信号通信，共享内存通信等等。
+一个进程就是一个程序的运行实例。启动一个程序的时候，操作系统会为该程序创建一块内存，用来存放代码、运行中的数据，并开辟一条或多条线程进行执行，我们把这样的一个运行环境叫**进程**。。而线程我个人理解为进程的进程，进程的出现是为了解决多进程资源消耗太大的问题，以及提高响应速度，比如一个文本编译器进程，就需要有线程进行编辑操作，有线程进行保存操作。有线程进行渲染操作。线程之间可以共享进程的资源，相比之下，进程之间通信就麻烦的多，有管道通信， 消息队列通信，信号通信，共享内存通信等等。
 
 两者区别:
 
@@ -913,24 +1010,30 @@ c.getValue()
 
 从本质来说，进程和线程都是对CPU工作时间片的一种描述，**进程是资源调度的最小单位，线程是CPU调度的最小单位。**
 
-一个进程就是一个程序的运行实例，启动一个程序，OS会为程序分配内存空间，这么一个在内存里的程序实例就是进程，而线程我个人理解为进程的进程，或者叫进程的控制单元，它的出现是为了解决多进程资源消耗过大的问题，。因为线程的切换比进程的切换开销要小。此外还能提高响应速度，比如一个文本编译器进程，可能有编辑线程，渲染线程，保存线程等等，他们都可以共享进程中的资源，并行或并发工作提高响应速度。
+一个进程就是一个程序的运行实例，启动一个程序，OS会为程序分配内存空间存放运行代码所需要的数据，并开辟一条或多条线程进行执行代码，这么一个在内存里的程序实例就是进程，而线程我个人理解为进程的进程，或者叫进程的控制单元，它的出现是为了解决多进程资源消耗过大的问题。因为线程的切换比进程的切换开销要小，线程之间可以共享进程内的数据。此外还能提高响应速度，比如一个文本编译器进程，可能有编辑线程，渲染线程，保存线程等等，他们都可以共享进程中的资源，并行或并发工作提高响应速度。
 
-一个线程出现问题，整个进程就会崩溃。
+但是也有问题，一个线程出现问题，整个进程就会崩溃。
 
 > 可能会问区别，看上面
+>
+> 为什么进程的切换开销更大？
+>
+> 1. 线程上下文切换和进程上下问切换一个最主要的区别是线程的切换[虚拟内存](https://so.csdn.net/so/search?q=虚拟内存&spm=1001.2101.3001.7020)空间依然是相同的，但是进程切换是不同的。这两种上下文切换的处理都是通过操作系统内核来完成的。内核的这种切换过程伴随的最显著的性能损耗是将寄存器中的内容切换出。
+>
+> 2. 另外一个隐藏的损耗是上下文的切换会扰乱处理器的缓存机制。简单的说，一旦去切换上下文，处理器中所有已经缓存的内存地址一瞬间都作废了。还有一个显著的区别是当你改变虚拟内存空间的时候，处理的页表缓冲（processor's Translation Lookaside Buffer (TLB)）或者相当的神马东西会被全部刷新，这将导致内存的访问在一段时间内相当的低效。但是在线程的切换中，不会出现这个问题。
 
 # 30.浏览器多个页面之间的通信
 
 实现多个标签页之间的通信，本质上都是通过中介者模式来实现的。因为标签页之间没有办法直接通信，因此我们可以找一个中介者，让标签页和中介者进行通信，然后让这个中介者来进行消息的转发。通信方法如下：
 
 - **使用 websocket 协议**，因为 websocket 协议可以实现服务器推送，所以服务器就可以用来当做这个中介者。标签页通过向服务器发送数据，然后由服务器向其他标签页推送转发。
-- **使用 ShareWorker 的方式**，shareWorker 会在页面存在的生命周期内创建一个唯一的线程，并且开启多个页面也只会使用同一个线程。这个时候共享线程就可以充当中介者的角色。标签页间通过共享一个线程，然后通过这个共享的线程来实现数据的交换。
+- **使用 ShareWorker 的方式**，shareWorker 会在页面存在的生命周期内根据js文件名创建一个唯一的线程，并且开启多个页面也只会使用同一个线程。这个时候共享线程就可以充当中介者的角色。标签页间通过共享一个线程，然后通过这个共享的线程来实现数据的交换。
 - **使用 localStorage 的方式**，我们可以在一个标签页对 localStorage 的变化事件进行监听，然后当另一个标签页修改数据的时候，我们就可以通过这个监听事件来获取到数据。这个时候 localStorage 对象就是充当的中介者的角色。
-- **使用 postMessage 方法**，如果我们能够获得对应标签页的引用，就可以使用postMessage 方法，进行通信。
+- **使用 postMessage 方法**，如果我们能够获得对应标签页的引用，就可以使用postMessage方法，进行通信。
 
 # 31.serviceWorker
 
-Service Worker 是运行在浏览器背后的**独立线程**，一般可以用来实现缓存功能。相较于强缓存/协商缓存这种由后端主导的缓存，ServiceWorker是纯前端来控制。使用 Service Worker的话，传输协议必须为 **HTTPS**。因为 Service Worker 中涉及到请求拦截，所以必须使用 HTTPS 协议来保障安全。
+Service Worker 是运行在浏览器背后的**独立线程**，一旦创建完成，就和页面没关系了，会作为浏览器的一个常驻后台线程，一般可以用来实现缓存功能。相较于强缓存/协商缓存这种由后端主导的缓存，ServiceWorker是纯前端来控制。使用 Service Worker的话，传输协议必须为 **HTTPS**。因为 Service Worker 中涉及到请求拦截，所以必须使用 HTTPS 协议来保障安全。
 
 Service Worker 实现缓存功能一般分为三个步骤：首先需要先注册 Service Worker，然后监听到 `install` 事件以后就可以缓存需要的文件，那么在下次用户访问的时候就可以通过拦截请求的方式查询是否存在缓存，存在缓存的话就可以直接读取缓存文件，否则就去请求数据。
 
@@ -989,6 +1092,208 @@ html复制代码<ul id="list">
 8. Class
 9. Promise
 10. 箭头函数
-11. rest拓展运算符
+11. 拓展运算符
 12. Iterator遍历器，提供了一种通用的遍历手段
+
+# 36. 高阶函数
+
+参数或者返回值是函数的函数
+
+- filter
+- map
+- sort
+- some
+- every
+- reduce
+
+# 37.判断一个对象是否为空
+
+```js
+function isEmpty1(obj) {
+    return JSON.stringify(obj) === '{}';
+}
+
+// 可枚举属性，不包括Symbol属性
+function isEmpty2(obj) {
+    return Object.keys(obj).length === 0;
+}
+
+// 可枚举、不可枚举属性，不包括Symbol属性
+function isEmpty3(obj) {
+    return Object.getOwnPropertyNames(obj).length === 0 && Object.getOwnPropertySymbols(obj).length === 0;
+}
+
+function isEmpty4(obj) {
+    let flag = true;
+    for (let key in obj) {
+        if (flag) {
+            flag = false;
+            break;
+        }
+    }
+    return flag && Object.getOwnPropertySymbols(obj).length === 0;
+}
+
+// Reflect.ownKeys()返回所有属性，包括Symbol属性 等价于 Object.getOwnPropertyNames(obj).concat(Object.getOwnPropertySymbols(obj))
+function isEmpty5(obj) {
+    return Reflect.ownKeys(obj).length === 0;
+}
+```
+
+# 38.判断对象里是否有某个属性
+
+```js
+// 会到原型上去找，也能判断Symbol
+function hasProperty(obj, key) {
+    return key in obj;
+}
+
+// 无法判断不可枚举属性，无法判断Symbol！
+function hasProperty2(obj, key) {
+    return Object.keys(obj).includes(key);
+}
+
+// 可枚举，不可枚举，Symbol值都能判断！
+function hasProperty3(obj, key) {
+    return Object.prototype.hasOwnProperty.call(obj, key);
+}
+```
+
+# 39.性能优化
+
+1. 路由懒加载：有效拆分 `App` 尺寸，访问时才异步加载
+
+```js
+js复制代码const router = createRouter({
+    routes: [
+        { path : '/foo', component: () => import('./foo.vue)}
+    ]
+})
+```
+
+2. `keep-alive` 缓存页面：避免重复创建组件实例，且能保存缓存组件状态
+
+```html
+html复制代码<keep-alive>
+  <router-view v-if="$route.meta.keepAlive == true"></router-view>
+</keep-alive>
+<router-view v-if="$route.meta.keepAlive != true"></router-view>
+```
+
+3. 使用 `v-show` 复用 `DOM`：避免重复创建组件
+
+4. `v-for` 遍历避免同时使用 `v-if`（实际上这在 Vue3 中是错误的写法）
+
+5. `v-once` 和 `v-memo`: 不再变化的数据使用 `v-once`；按条件跳过更新时使用 `v-memo`
+
+6. 长列表性能优化：如果是大数据长列表，可采用虚拟滚动，只渲染少部分区域的内容。一些开源库（`vue-virtual-scroller` / `vue-virtual-scroll-grid`）
+7. 事件的销毁：Vue组件销毁时，会自动解绑它的全部指令以及事件监听器，但是仅限于组件本身的事件。
+8. 图片懒加载，自定义 `v-lazy` 指令 （参考项目：`vue-lazyload`）
+9. 第三方插件按需引入 `element-plus` 避免体积太大
+10. 子组件分割策略：较重的状态组件适合拆分
+11. `SSR` 服务端渲染 解决首屏渲染慢的问题
+
+# 40.JS异步编程的方式
+
+1. 回调函数
+
+函数里面嵌套函数，容易写成回调地狱
+
+2. 事件监听
+
+使用事件驱动模式，任务的执行不取决于代码的顺序，而是某个事件是否发生，可以为第一个函数绑定一个事件，第二个函数监听这个事件，然后第一个函数执行完成之后触发事件，开始执行后面的。
+
+采用这个方式，整个应用会变成事件驱动模式，运行流程变得不清晰
+
+3. 发布订阅模式
+
+用一个信号中心，某个任务完成，就像中心发送一个信号，其他任务可以订阅信号，从而知道自己什么时候开始执行。
+
+这种模式是对事件监听的一种改良吧。
+
+4. Promise
+
+背一下Promise八股。
+
+有了`Promise`对象，就可以将异步操作以同步操作的流程表达出来，避免了层层嵌套的回调函数。此外，`Promise`对象提供统一的接口，使得控制异步操作更加容易。
+
+`Promise`也有一些缺点。
+
+- 无法取消`Promise`，一旦新建它就会立即执行，无法中途取消。
+- 其次，如果不设置回调函数，`Promise`内部抛出的错误，不会反应到外部。
+- 第三，当处于`Pending`状态时，无法得知目前进展到哪一个阶段（刚刚开始还是即将完成）。
+
+5. Generator函数
+
+**Generator函数是ES6提供的一种异步编程解决方案**，语法行为与传统函数完全不同
+
+Generator函数有多种理解角度。从语法上，首先可以把它理解成，**Generator函数是一个状态机，封装了多个内部状态**。
+
+**执行Generator函数会返回一个遍历器对象**，也就是说，Generator函数除了状态机，还是一个遍历器对象生成函数。返回的遍历器对象，**可以依次遍历Generator函数内部的每一个状态**。它最大的特点就是可以交出函数的执行权，暂停执行
+
+形式上，Generator函数是一个普通函数，但是有两个特征。一是，`function`关键字与函数名之间有一个星号；二是，函数体内部使用`yield`语句，定义不同的内部状态（yield语句在英语里的意思就是“产出”）。
+
+```js
+function* helloWorldGenerator() {
+  yield 'hello';
+  yield 'world';
+  return 'ending';
+}
+
+var hw = helloWorldGenerator();
+hw.next()
+// { value: 'hello', done: false }
+
+hw.next()
+// { value: 'world', done: false }
+
+hw.next()
+// { value: 'ending', done: true }
+
+hw.next()
+// { value: undefined, done: true }
+```
+
+6. async/await
+
+`async`函数就是Generator函数的语法糖。
+
+`async`函数对 Generator 函数的改进，体现在以下四点
+
+（1）内置执行器。Generator函数的执行必须靠执行器，所以才有了`co`模块，而`async`函数自带执行器。也就是说，`async`函数的执行，与普通函数一模一样，只要一行。
+
+（2）更好的语义。`async`和`await`，比起星号和`yield`，语义更清楚了。`async`表示函数里有异步操作，`await`表示紧跟在后面的表达式需要等待结果。
+
+（3）更广的适用性。 `co`模块约定，`yield`命令后面只能是Thunk函数或Promise对象，而`async`函数的`await`命令后面，可以是Promise对象和原始类型的值（数值、字符串和布尔值，但这时等同于同步操作）。
+
+（4）返回值是Promise。`async`函数的返回值是Promise对象，这比Generator函数的返回值是Iterator对象方便多了。你可以用`then`方法指定下一步的操作。
+
+进一步说，`async`函数完全可以看作多个异步操作，包装成的一个Promise对象，而`await`命令就是内部`then`命令的语法糖
+
+# 41.setTimeout VS setInterval
+
+```js
+setInterval(() => {
+    // do someting
+},1000)
+```
+
+```js
+function fn() {
+    setTimeout(() => {
+        //do something
+        fn();
+    },10000);
+}
+```
+
+第一个每隔一秒生成一个任务，第二个每隔一秒执行一个任务
+
+![image-20230910200244251](./assets/image-20230910200244251.png)
+
+![image-20230910200258492](./assets/image-20230910200258492.png)
+
+setInterval每隔1s生成一个回调任务，如果回调任务的执行时间大于1s了，那么就会出现任务的“消费效率”追不上任务的“生产效率”，导致任务队列挤压。
+
+setTimeout保证只有一个任务执行完了，过了1s才会执行下一个
 

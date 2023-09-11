@@ -22,7 +22,7 @@
 
 > !important优先级最高
 >
-> 当样式重复时，!important > 行内样式 > id选择器 > 类选择器.. > 标签.. > 关系选择器.. > 继承 	> 浏览器默认样式 
+> 当样式重复时，!important > 行内样式 > id选择器 > 类选择器.. > 标签.. > 关系选择器.. > 继承 > 浏览器默认样式 
 
 # 2.隐藏元素的方法，区别
 
@@ -56,6 +56,8 @@
 >
 > 因为透明度改变后，GPU在绘制页面时可以改变之前画好的页面的透明值，而无需整体的重绘。
 > 但是这个被修改的opacity必须为一个单独的图层，否则图层中的其他节点也会被重绘。
+
+- **transform: scale(0,0)**：将元素缩放为 0，来实现元素的隐藏。这种方法下，元素仍在页面中占据位置，但是不会响应绑定的监听事件。
 
 # 3.BFC
 
@@ -139,6 +141,192 @@ Block formatting context 块级格式化上下文
   display: flex;
   justify-content: center;
   align-items: center;
+}
+```
+
+# 自适应正方形
+
+1. 使用rem
+
+```css
+<div class="rem">rem</div>
+
+body {
+    font-size: 16px;
+}
+
+.rem {
+    width: 10rem;
+    height: 10rem;
+    background: pink;
+}
+
+@media only screen and (max-width: 1200px) {
+    body {
+        font-size: 12px;
+    }
+}
+```
+
+2. vw/vh
+
+```css
+<div class="vw">vw</div>
+.vw {
+    width: 10vw;
+    height: 10vw;
+    background: yellow;
+}
+```
+
+3. 百分比+padding
+
+使用 **百分比+padding**，这里有一个很细的知识点；**当padding、margin取值为百分比时，百分比的值是以父元素的width为参考**。
+
+```js
+<div class="padding"></div>
+.padding {
+    width: 20%;
+    padding-top: 20%;
+    /* padding-top或padding-bottom都可以 */
+    background: #696969;
+}
+```
+
+但是高度被占满了，没法放内容，**解决办法：再嵌套一层内容盒子，外层方形盒为相对定位，内层内容盒为绝对定位；内层盒宽高基于外层方形盒，代码如下**
+
+```css
+<div class="box-wrap">
+    <div class="box-content">我是内容区域</div>
+</div>
+
+.box-wrap {
+    position: relative;
+    width: 20%;
+    padding-top: 20%;
+}
+
+.box-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    background: burlywood;
+}
+
+```
+
+4. **aspect-ratio**简言之就是宽高比
+
+```css
+<div class="box-square">我是内容</div>
+
+.box-square {
+    aspect-ratio: 1 / 1;
+    /* aspect-ratio: 1; 可简写 */
+    width: 20%;
+    background: chocolate;
+}
+
+```
+
+# 高度height:100%
+
+- 要想要元素的`height：百分比;`生效，父元素的高度必须有固定值，这个固定值可以是继承上个元素的高度，但继承的最外层元素高度必须要有固定值。
+- 这个`height：百分比;`不会被其它子元素的`height`影响，也就是说，`height：百分比;`只按父元素的固定的`height`分配；
+
+# 两栏布局
+
+- 利用浮动，将左边元素宽度设置为200px，并且设置向左浮动。将右边元素的margin-left设置为200px，宽度设置为auto（默认为auto，撑满整个父元素）。
+
+```css
+css复制代码.outer {
+  height: 100px;
+}
+.left {
+  float: left;
+  width: 200px;
+  background: tomato;
+}
+.right {
+  margin-left: 200px;
+  width: auto;
+  background: gold;
+}
+```
+
+- 利用浮动，左侧元素设置固定大小，并左浮动，右侧元素设置overflow: hidden; 这样右边就触发了BFC，BFC的区域不会与浮动元素发生重叠，所以两侧就不会发生重叠。
+
+```css
+css复制代码.left{
+     width: 100px;
+     height: 200px;
+     background: red;
+     float: left;
+ }
+ .right{
+     height: 300px;
+     background: blue;
+     overflow: hidden;
+ }
+```
+
+- 利用flex布局，将左边元素设置为固定宽度200px，将右边的元素设置为flex:1。
+
+```css
+css复制代码.outer {
+  display: flex;
+  height: 100px;
+}
+.left {
+  width: 200px;
+  background: tomato;
+}
+.right {
+  flex: 1;
+  background: gold;
+}
+```
+
+- 利用绝对定位，将父级元素设置为相对定位。左边元素设置为absolute定位，并且宽度设置为200px。将右边元素的margin-left的值设置为200px。
+
+```css
+css复制代码.outer {
+  position: relative;
+  height: 100px;
+}
+.left {
+  position: absolute;
+  width: 200px;
+  height: 100px;
+  background: tomato;
+}
+.right {
+  margin-left: 200px;
+  background: gold;
+}
+```
+
+- 利用绝对定位，将父级元素设置为相对定位。左边元素宽度设置为200px，右边元素设置为绝对定位，左边定位为200px，其余方向定位为0。
+
+```css
+css复制代码.outer {
+  position: relative;
+  height: 100px;
+}
+.left {
+  width: 200px;
+  background: tomato;
+}
+.right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 200px;
+  background: gold;
 }
 ```
 
