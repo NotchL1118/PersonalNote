@@ -1301,3 +1301,8 @@ setInterval每隔1s生成一个回调任务，如果回调任务的执行时间�
 
 setTimeout保证只有一个任务执行完了，过了1s才会执行下一个
 
+# 42 class和function主要区别是什么
+
+1. class构造函数必须使用new操作符
+2. class声明不可以提升
+3. class是不可以使用call、apply、bind来更改this指向
