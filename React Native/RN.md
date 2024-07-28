@@ -21,6 +21,8 @@
 
 # Think
 
+[1.视频]([React Native Tutorial - 1 - Introduction - YouTube](https://www.youtube.com/watch?v=hzzCveeczSQ&t=11s))
+
 - React itself is a library designed for building user interfaces
 
 > React本身是一个用于构建用户界面的库
@@ -33,3 +35,4 @@
 >
 > - `react-dom`用于将虚拟DOM转换为浏览器中的实际DOM元素。
 > - `react-native`用于将虚拟DOM转换为移动设备上的原生组件。
+
