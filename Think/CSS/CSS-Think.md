@@ -1,6 +1,6 @@
 ## 2023-3-4 Acro Design Pro
 
-写SAAS平台，头像想要不压缩的塞进img中，可以使用`object-fit`[命令](https://developer.mozilla.org/zh-CN/docs/Web/CSS/object-fit)，取值为cover-
+写SAAS平台，头像想要不压缩的塞进img中，可以使用`object-fit`[命令](https://developer.mozilla.org/zh-CN/docs/Web/CSS/object-fit)，取值为cover
 
 - contain
 
